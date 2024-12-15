@@ -1,32 +1,9 @@
 
-# Telegram Group Management Bot
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-  - [1. Clone the Repository](#1-clone-the-repository)
-  - [2. Navigate to the Project Directory](#2-navigate-to-the-project-directory)
-  - [3. Set Up a Virtual Environment](#3-set-up-a-virtual-environment)
-  - [4. Install Dependencies](#4-install-dependencies)
-- [Configuration](#configuration)
-  - [1. Create a Telegram Bot](#1-create-a-telegram-bot)
-  - [2. Set Up Environment Variables](#2-set-up-environment-variables)
-- [Running the Bot](#running-the-bot)
-- [Setting Up the Bot to Run on System Startup](#setting-up-the-bot-to-run-on-system-startup)
-  - [1. Create a Systemd Service File](#1-create-a-systemd-service-file)
-  - [2. Enable and Start the Service](#2-enable-and-start-the-service)
-  - [3. Verify the Service Status](#3-verify-the-service-status)
-- [Usage](#usage)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
-- [Acknowledgements](#acknowledgements)
+# TG-Mark-All
 
 ## Overview
 
-The **Telegram Group Management Bot** is a Python-based Telegram bot designed to help administrators manage their Telegram groups efficiently. It offers functionalities such as tracking group members, managing inactive users, and facilitating mass mentions using trigger words like the bot's username, `@all`, or `@everyone`.
+**TG-Mark-All** is a Telegram bot based on Python, designed to tag all members in a group using keywords like the bot's username, "@all," or "@everyone."
 
 ## Features
 
@@ -39,212 +16,6 @@ The **Telegram Group Management Bot** is a Python-based Telegram bot designed to
 - **Database Integration**: Utilizes SQLite with SQLAlchemy for efficient data management.
 - **Scheduled Tasks**: Uses APScheduler to handle periodic tasks like updating members and removing inactive users.
 
-## Prerequisites
-
-Before installing and running the bot, ensure that your system meets the following requirements:
-
-- **Operating System**: Linux (Debian/Ubuntu recommended)
-- **Python**: Version 3.7 or higher
-- **Git**: For cloning the repository
-- **Telegram Account**: To create and manage your bot
-
-## Installation
-
-Follow the steps below to install and set up the Telegram Group Management Bot on your Linux system.
-
-### 1. Clone the Repository
-
-First, clone the repository to your local machine using Git:
-
-```bash
-git clone https://github.com/MBudkin/TG-Mark-All.git
-```
-
-### 2. Navigate to the Project Directory
-
-Change your current directory to the project's root directory:
-
-```bash
-cd TG-Mark-All
-```
-
-### 3. Set Up a Virtual Environment
-
-It's recommended to use a Python virtual environment to manage dependencies. You can create and activate a virtual environment using the following commands:
-
-```bash
-# Create a virtual environment named 'venv'
-python3 -m venv venv
-
-# Activate the virtual environment
-source venv/bin/activate
-```
-
-*After activation, your terminal prompt should be prefixed with `(venv)`.*
-
-### 4. Install Dependencies
-
-Install the required Python packages using `pip`:
-
-```bash
-pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-This command installs all the packages listed in the `requirements.txt` file, including `python-dotenv` for environment variable management.
-
-## Configuration
-
-Proper configuration is essential for the bot to function correctly. Follow the steps below to configure your bot.
-
-### 1. Create a Telegram Bot
-
-If you haven't already created a Telegram bot, follow these steps:
-
-1. **Open Telegram** and search for the [@BotFather](https://t.me/BotFather).
-2. **Start a conversation** with BotFather by clicking the **Start** button.
-3. **Create a new bot** by sending the command:
-
-    ```
-    /newbot
-    ```
-
-4. **Follow the prompts** to set a name and username for your bot.
-5. **Receive your bot token**. This token is required for configuring the bot.
-
-### 2. Set Up Environment Variables
-
-Create a `.env` file in the project's root directory to store your configuration settings securely.
-
-```bash
-touch .env
-```
-
-Open the `.env` file using your preferred text editor and add the following configurations:
-
-```dotenv
-# .env
-
-# Telegram Bot Token
-BOT_TOKEN=your_telegram_bot_token_here
-
-# Timezone for the scheduler (e.g., Europe/Moscow)
-TIMEZONE=UTC
-
-# (Optional) Additional configurations can be added here
-```
-
-*Replace `your_telegram_bot_token_here` with the token you received from BotFather.*
-
-**Important:** Ensure that the `.env` file is included in your `.gitignore` to prevent sensitive information from being pushed to GitHub.
-
-```gitignore
-# .gitignore
-
-# Virtual Environment
-venv/
-__pycache__/
-*.pyc
-
-# Environment Variables
-.env
-```
-
-## Running the Bot
-
-After completing the installation and configuration steps, you can run the bot using the following command:
-
-```bash
-python bot.py
-```
-
-If everything is set up correctly, the bot will start and begin listening for commands and messages in your Telegram groups.
-
-## Setting Up the Bot to Run on System Startup
-
-To ensure that your bot runs continuously and starts automatically when your Linux system boots, you can set it up as a **systemd** service. Follow the steps below to configure this.
-
-### 1. Create a Systemd Service File
-
-Create a service file for the bot. This file tells systemd how to manage the bot process.
-
-```bash
-sudo nano /etc/systemd/system/tg-mark-all.service
-```
-
-Add the following content to the file:
-
-```ini
-[Unit]
-Description=Telegram Group Management Bot
-After=network.target
-
-[Service]
-# Replace '/path/to/your/project' with the actual path where TG-Mark-All is located
-WorkingDirectory=/path/to/your/project/TG-Mark-All
-ExecStart=/path/to/your/project/TG-Mark-All/venv/bin/python bot.py
-Restart=always
-User=your_username
-Environment=PATH=/path/to/your/project/TG-Mark-All/venv/bin
-Environment=PYTHONUNBUFFERED=1
-
-[Install]
-WantedBy=multi-user.target
-```
-
-**Notes:**
-
-- **WorkingDirectory**: The directory where your `bot.py` is located.
-- **ExecStart**: The command to start the bot. Ensure it points to the Python interpreter inside your virtual environment.
-- **User**: The system user that will run the bot. Replace `your_username` with your actual Linux username.
-- **Environment=PATH**: Ensures that the service uses the Python interpreter from your virtual environment.
-- **Environment=PYTHONUNBUFFERED=1**: Prevents Python from buffering stdout and stderr, useful for logging.
-
-**Example:**
-
-If your project is located at `/home/your_username/TG-Mark-All`, and your virtual environment is in `venv`, the service file would look like this:
-
-```ini
-[Unit]
-Description=Telegram Group Management Bot
-After=network.target
-
-[Service]
-WorkingDirectory=/home/your_username/TG-Mark-All
-ExecStart=/home/your_username/TG-Mark-All/venv/bin/python bot.py
-Restart=always
-User=your_username
-Environment=PATH=/home/your_username/TG-Mark-All/venv/bin
-Environment=PYTHONUNBUFFERED=1
-
-[Install]
-WantedBy=multi-user.target
-```
-
-### 2. Enable and Start the Service
-
-Reload systemd to recognize the new service, enable it to start on boot, and then start the service.
-
-```bash
-# Reload systemd to pick up the new service file
-sudo systemctl daemon-reload
-
-# Enable the service to start on boot
-sudo systemctl enable tg-mark-all.service
-
-# Start the service immediately
-sudo systemctl start tg-mark-all.service
-```
-
-### 3. Verify the Service Status
-
-Check the status of your bot service to ensure it's running correctly.
-
-```bash
-sudo systemctl status tg-mark-all.service
-```
-
-You should see output indicating that the service is **active (running)**.
 
 ## Usage
 
@@ -260,112 +31,298 @@ Once the bot is running, you can interact with it using the following commands i
 - **`/del_member <Telegram_ID> <Group_ID>`**: Removes a specific member from the group's database.
 - **`/update`**: Manually updates the member list for all your groups.
 
-### Trigger Words for Mass Mentioning
+## Install
 
-In your Telegram groups, when any of the following trigger words are used in a message, the bot will mention all group members:
+Ниже представлена полная пошаговая инструкция по установке и настройке Telegram-бота **TG-Mark-All** на чистой системе Linux (Debian/Ubuntu). Инструкция включает установку всех необходимых пакетов, клонирование репозитория, настройку окружения и создание службы Systemd для автоматического запуска бота при старте системы.
 
-- **Bot's Username** (e.g., `@YourBotUsername`)
-- **`@all`**
-- **`@everyone`**
+---
 
-**Example:**
+## Шаг 1: Обновление системы
 
-If your bot's username is `@GroupManagerBot`, sending a message like:
+Сначала обновим список пакетов и установим обновления для текущих пакетов.
 
-```
-@GroupManagerBot
+```bash
+sudo apt update && sudo apt upgrade -y
 ```
 
-or
+## Шаг 2: Установка необходимых зависимостей
 
-```
-@all
-```
+Установим все необходимые пакеты, включая Python 3, `pip`, `git` и другие зависимости.
 
-or
-
-```
-@everyone
+```bash
+sudo apt install -y python3 python3-pip python3-venv git
 ```
 
-will prompt the bot to mention all members of the group.
+## Шаг 3: Клонирование репозитория бота
 
-## Troubleshooting
+Перейдите в директорию, где вы хотите разместить файлы бота. Например, в `/opt`.
 
-If you encounter issues while setting up or running the bot, consider the following steps:
+```bash
+cd /opt
+```
 
-1. **Check Service Status:**
+Клонируем репозиторий:
 
-   Ensure that the systemd service is running without errors.
+```bash
+git clone https://github.com/MBudkin/TG-Mark-All.git
+```
 
-   ```bash
-   sudo systemctl status tg-mark-all.service
-   ```
+Перейдите в директорию проекта:
 
-2. **View Logs:**
+```bash
+cd TG-Mark-All
+```
 
-   Access the service logs to identify any runtime errors.
+## Шаг 4: Создание виртуального окружения и установка зависимостей
 
-   ```bash
-   journalctl -u tg-mark-all.service -f
-   ```
+Создадим виртуальное окружение для изоляции зависимостей проекта.
 
-3. **Verify Environment Variables:**
+```bash
+python3 -m venv venv
+```
 
-   Ensure that the `.env` file contains the correct `BOT_TOKEN` and `TIMEZONE`.
+Активируем виртуальное окружение:
 
-4. **Check Dependencies:**
+```bash
+source venv/bin/activate
+```
 
-   Make sure all Python dependencies are installed correctly.
+Установим необходимые пакеты из `requirements.txt`:
 
-   ```bash
-   pip list
-   ```
+```bash
+pip install --upgrade pip
+pip install -r requirements.txt
+```
 
-5. **Permissions:**
+## Шаг 5: Настройка конфигурационных файлов
 
-   Verify that the user running the service has the necessary permissions to access the project directory and execute the bot.
+### 5.1 Создание файла `.env`
 
-6. **Reinstall Dependencies:**
+Создайте файл `.env` в корневой директории проекта:
 
-   Sometimes, reinstalling dependencies can resolve issues.
+```bash
+nano .env
+```
 
-   ```bash
-   pip install --upgrade --force-reinstall -r requirements.txt
-   ```
+Вставьте следующее содержимое, заменив `YOUR_BOT_TOKEN` на токен вашего Telegram-бота:
 
-## Contributing
+```env
+# .env
 
-Contributions are welcome! If you'd like to contribute to this project, please follow these steps:
+# Токен вашего Telegram бота
+BOT_TOKEN=YOUR_BOT_TOKEN
 
-1. **Fork the Repository**
+# Часовой пояс для планировщика (например, Europe/Moscow)
+TIMEZONE=Europe/Moscow
 
-2. **Create a New Branch**
+# Другие настройки можно добавить здесь
+```
 
-   ```bash
-   git checkout -b feature/YourFeatureName
-   ```
+Сохраните файл и выйдите из редактора (`Ctrl + O`, затем `Ctrl + X` в nano).
 
-3. **Commit Your Changes**
+### 5.2 Проверка и настройка других файлов
 
-   ```bash
-   git commit -m "Add some feature"
-   ```
+Убедитесь, что файлы `bot.py`, `models.py` и другие необходимые файлы находятся в директории проекта и настроены правильно. Если вы клонировали репозиторий, это должно быть выполнено автоматически.
 
-4. **Push to the Branch**
+## Шаг 6: Тестовый запуск бота
 
-   ```bash
-   git push origin feature/YourFeatureName
-   ```
+Прежде чем настраивать службу Systemd, протестируйте запуск бота вручную.
 
-5. **Open a Pull Request**
+Убедитесь, что виртуальное окружение активировано:
 
-   Describe your changes and submit a pull request for review.
+```bash
+source venv/bin/activate
+```
 
-## Acknowledgements
+Запустите бота:
 
-- [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot) - The library used for interacting with the Telegram Bot API.
-- [SQLAlchemy](https://www.sqlalchemy.org/) - For ORM and database management.
-- [APScheduler](https://apscheduler.readthedocs.io/en/stable/) - For scheduling periodic tasks.
-- [python-dotenv](https://github.com/theskumar/python-dotenv) - For managing environment variables.
+```bash
+python3 bot.py
+```
 
+Если бот запускается без ошибок, можно перейти к следующему шагу. Для остановки бота нажмите `Ctrl + C`.
+
+## Шаг 7: Создание службы Systemd для автоматического запуска бота
+
+### 7.1 Создание файла службы
+
+Создайте файл службы Systemd. Для этого используем текстовый редактор, например, `nano`.
+
+```bash
+sudo nano /etc/systemd/system/tg-mark-all.service
+```
+
+Вставьте следующее содержимое, заменив пути в соответствии с вашим расположением проекта (предполагается, что проект находится в `/opt/TG-Mark-All`):
+
+```ini
+[Unit]
+Description=TG-Mark-All Telegram Bot
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/TG-Mark-All
+Environment="PATH=/opt/TG-Mark-All/venv/bin"
+ExecStart=/opt/TG-Mark-All/venv/bin/python3 bot.py
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
+```
+
+**Пояснения к параметрам:**
+
+- **Description**: Описание службы.
+- **After**: Зависимость от сетевых служб.
+- **User**: Пользователь, от имени которого будет запускаться служба (в данном случае `root`).
+- **WorkingDirectory**: Рабочая директория проекта.
+- **Environment**: Указание пути к виртуальному окружению.
+- **ExecStart**: Команда для запуска бота.
+- **Restart** и **RestartSec**: Автоматический перезапуск службы при сбое.
+- **WantedBy**: Определяет, когда служба должна быть запущена.
+
+Сохраните файл и выйдите из редактора (`Ctrl + O`, затем `Ctrl + X` в nano).
+
+### 7.2 Перезагрузка демонa Systemd и запуск службы
+
+Перезагрузим демон Systemd, чтобы он распознал новую службу.
+
+```bash
+sudo systemctl daemon-reload
+```
+
+Запустим службу:
+
+```bash
+sudo systemctl start tg-mark-all.service
+```
+
+Проверим статус службы:
+
+```bash
+sudo systemctl status tg-mark-all.service
+```
+
+Вы должны увидеть что-то похожее на:
+
+```
+● tg-mark-all.service - TG-Mark-All Telegram Bot
+     Loaded: loaded (/etc/systemd/system/tg-mark-all.service; enabled; vendor preset: enabled)
+     Active: active (running) since ...
+   Main PID: 12345 (python3)
+      Tasks: 3 (limit: 4915)
+     Memory: 50.0M
+     CGroup: /system.slice/tg-mark-all.service
+             └─12345 /opt/TG-Mark-All/venv/bin/python3 bot.py
+```
+
+### 7.3 Автозапуск службы при старте системы
+
+Включим автозапуск службы при загрузке системы:
+
+```bash
+sudo systemctl enable tg-mark-all.service
+```
+
+## Шаг 8: Управление службой
+
+### 8.1 Остановка службы
+
+```bash
+sudo systemctl stop tg-mark-all.service
+```
+
+### 8.2 Перезапуск службы
+
+```bash
+sudo systemctl restart tg-mark-all.service
+```
+
+### 8.3 Просмотр логов службы
+
+Для просмотра логов бота используйте `journalctl`:
+
+```bash
+sudo journalctl -u tg-mark-all.service -f
+```
+
+Флаг `-f` позволяет следить за логами в реальном времени.
+
+## Шаг 9: Дополнительные рекомендации
+
+### 9.1 Обновление кода бота
+
+Если вы вносите изменения в код бота или обновляете репозиторий, выполните следующие шаги:
+
+1. Остановите службу:
+
+    ```bash
+    sudo systemctl stop tg-mark-all.service
+    ```
+
+2. Перейдите в директорию проекта и обновите код:
+
+    ```bash
+    cd /opt/TG-Mark-All
+    git pull origin main
+    ```
+
+3. Установите новые зависимости (если они появились):
+
+    ```bash
+    source venv/bin/activate
+    pip install --upgrade pip
+    pip install -r requirements.txt
+    deactivate
+    ```
+
+4. Запустите службу снова:
+
+    ```bash
+    sudo systemctl start tg-mark-all.service
+    ```
+
+### 9.2 Безопасность
+
+Хотя вы запускаете бота от имени `root`, рекомендуется создать отдельного пользователя для запуска бота для повышения безопасности.
+
+Создайте пользователя `tgbot`:
+
+```bash
+sudo adduser --system --no-create-home tgbot
+```
+
+Измените файл службы `/etc/systemd/system/tg-mark-all.service`, заменив `User=root` на `User=tgbot` и установив соответствующие права на директорию проекта:
+
+```bash
+sudo chown -R tgbot:tgbot /opt/TG-Mark-All
+```
+
+Отредактируйте файл службы:
+
+```bash
+sudo nano /etc/systemd/system/tg-mark-all.service
+```
+
+Измените строку `User=root` на `User=tgbot`.
+
+Сохраните файл, перезагрузите демон и перезапустите службу:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl restart tg-mark-all.service
+```
+
+## Шаг 10: Проверка работы бота
+
+Убедитесь, что бот работает корректно:
+
+1. Откройте Telegram и найдите вашего бота.
+2. Отправьте команду `/start` и убедитесь, что бот отвечает приветственным сообщением.
+3. Проверьте функциональность бота в группах, где он добавлен.
+
+---
+
+Поздравляю! Вы успешно установили и настроили Telegram-бота **TG-Mark-All** на вашей системе Linux. Теперь бот будет автоматически запускаться при каждом старте системы и работать в фоновом режиме. Не забывайте периодически проверять логи службы для отслеживания состояния бота и возможных ошибок.
