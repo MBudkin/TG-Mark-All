@@ -3,7 +3,7 @@
 
 ## Overview
 
-**TG-Mark-All** is a Telegram bot based on Python, designed to tag all members in a group using keywords like the bot's username, "@all," or "@everyone."
+**TG-Mark-All** is a Telegram bot based on Python, designed to tag all members in a group using keywords like the bot's username, "@all" or "@everyone"
 
 ## Features
 
