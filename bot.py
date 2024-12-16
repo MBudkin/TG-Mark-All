@@ -111,7 +111,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "/help - Показать справку\n"
         "/groups - Показать группы, где вы администратор\n"
         "/members <Group_ID> - Показать список участников группы\n"
-        "/set_expiration_days <Group_ID> <дней> - Установить дни до удаления неактивных участников\n"
+        "/set_expiration_days <Group_ID> <дней> - Установить дни до удаления неактивных участников из базы\n"
         "/del_member <Telegram_ID> <Group_ID> - Удалить участника из базы данных\n"
         "/update - Обновить список участников вручную по всем группам\n"
     )
@@ -201,7 +201,7 @@ async def members_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"<b>Имя:</b> {member.full_name or 'Без имени'}\n"
                 f"<b>Username:</b> {username}\n"
                 f"<b>Последняя активность:</b> {last_active}\n"
-                f"<b>Дней до удаления:</b> {days_until_deletion}"
+                f"<b>Дней до удаления из базы:</b> {days_until_deletion}"
             )
             message_lines.append("\n---\n" + member_info)
 
@@ -258,11 +258,11 @@ async def set_expiration_days_command(update: Update, context: ContextTypes.DEFA
         session.commit()
 
         await update.message.reply_text(
-            f"Количество дней до удаления участников успешно изменено с {old_days} на {new_days} дней для группы '{group.name or 'Без названия'}'."
+            f"Количество дней до удаления участников из базы успешно изменено с {old_days} на {new_days} дней для группы '{group.name or 'Без названия'}'."
         )
     except Exception as e:
         logger.error(f"Ошибка при выполнении команды /set_expiration_days: {e}")
-        await update.message.reply_text("Произошла ошибка при установке дней до удаления.")
+        await update.message.reply_text("Произошла ошибка при установке дней до удаления из базы.")
     finally:
         session.close()
 
@@ -312,7 +312,7 @@ async def del_member_command(update: Update, context: ContextTypes.DEFAULT_TYPE)
         )
     except Exception as e:
         logger.error(f"Ошибка при выполнении команды /del_member: {e}")
-        await update.message.reply_text("Произошла ошибка при удалении участника.")
+        await update.message.reply_text("Произошла ошибка при удалении участника из базы.")
     finally:
         session.close()
 
@@ -378,7 +378,7 @@ async def update_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         db_member.last_active = datetime.datetime.utcnow()
                 session.commit()
 
-                # Удаление неактивных участников
+                # Удаление неактивных участников из базы
                 deleted = session.query(Member).filter(
                     Member.group_id == group.id,
                     Member.telegram_id.notin_(active_ids)
@@ -387,7 +387,7 @@ async def update_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     logger.info(f"Удалено {deleted} неактивных участников из группы {group.telegram_id}.")
                     await update.message.reply_text(f"Удалено {deleted} неактивных участников из группы '{group.name or 'Без названия'}'.")
                 else:
-                    await update.message.reply_text(f"В группе '{group.name or 'Без названия'}' нет неактивных участников для удаления.")
+                    await update.message.reply_text(f"В группе '{group.name or 'Без названия'}' нет неактивных участников для удаления из базы.")
                 session.commit()
             except AttributeError as ae:
                 logger.error(f"Ошибка при обновлении группы {group.telegram_id}: {ae}")
@@ -514,7 +514,7 @@ async def chat_member_update(update: Update, context: ContextTypes.DEFAULT_TYPE)
     finally:
         session.close()
 
-# Функция удаления неактивных участников с учетом expiration_days
+# Функция удаления неактивных участников из базы с учетом expiration_days
 def remove_inactive_members():
     session = Session()
     try:
@@ -538,7 +538,7 @@ def remove_inactive_members():
         if total_deleted:
             logger.info(f"Удалено {total_deleted} неактивных участников из всех групп.")
     except Exception as e:
-        logger.error(f"Ошибка при удалении неактивных участников: {e}")
+        logger.error(f"Ошибка при удалении неактивных участников из базы: {e}")
     finally:
         session.close()
 
@@ -587,7 +587,7 @@ async def update_members(application_bot):
                         db_member.last_active = datetime.datetime.utcnow()
                 session.commit()
 
-                # Удаление неактивных участников
+                # Удаление неактивных участников из базы
                 deleted = session.query(Member).filter(
                     Member.group_id == group.id,
                     Member.telegram_id.notin_(active_ids)
